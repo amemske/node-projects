@@ -2,26 +2,24 @@ var express = require('express');
 var app = express();
 const tasks = require('./routes/tasks');
 const connectDB = require('./db/connect');
+const notFound = require('./middleware/not-found');
+const errorHandlerMiddleware = require('./middleware/error-handler');
 require('dotenv').config();
 
 //middleware
+app.use(express.static('./public'));
 app.use(express.json());
 
 //routes
-app.get('/hello', (req, res) => {
-  res.send('Task Manager App');
-});
-
+//app.use(notFound); //route not found ********-----BUG*************
 app.use('/api/v1/tasks', tasks);
 
-/* app.get('/api/v1/tasks') - get all tasks
-app.post('/api/v1/tasks') - create a new task
-app.get('/api/v1/tasks/:id') - get a single task
-app.patch('/api/v1/tasks/:id') - update a task
-app.delete('/api/v1/tasks/:id') - delete a task
- */
+//error handling middleware
+app.use(errorHandlerMiddleware);
 
-const port = 4000;
+const port = process.env.PORT || 4000;
+//to set the port in the console
+//stop server, write PORT=7000 node app.js
 
 const start = async () => {
   try {
