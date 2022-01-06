@@ -1,16 +1,18 @@
 const Task = require('../models/Task');
 const asyncWrapper = require('../middleware/async');
+const { createCustomError } = require('../errors/custom-errors');
 
 const getAllTasks = asyncWrapper(async (req, res) => {
   const tasks = await Task.find({}); //mongoose method
   res.status(201).json({ tasks });
   // res.send('All Tasks');
 });
-const getTask = asyncWrapper(async (req, res) => {
+const getTask = asyncWrapper(async (req, res, next) => {
   const { id: taskID } = req.params; // note: taskId is an alias of id
   const task = await Task.findOne({ _id: taskID }); //mongoose method
   if (!task) {
-    return res.status(404).json({ msg: `No task with the id ${taskID}` });
+    //create a new error object using built in error constructor
+    return next(createCustomError(`No task with the id ${taskID}`, 404));
   }
   // res.status(200).json({ task ,amount:tasks.length});
   // res.status(200).json({ status: 'success', task ,amount:tasks.length});
@@ -30,7 +32,7 @@ const deleteTask = asyncWrapper(async (req, res) => {
   const { id: taskID } = req.params;
   const task = await Task.findOneAndDelete({ _id: taskID });
   if (!task) {
-    return res.status(404).json({ msg: `no item with the id ${taskID}` });
+    return next(createCustomError(`No task with the id ${taskID}`, 404));
   }
   res.status(201).json({ task });
   //you can also say res.status(201).send()
@@ -52,7 +54,7 @@ const updateTask = asyncWrapper(async (req, res) => {
   });
 
   if (!task) {
-    res.status(404).json({ msg: `No task with id :  ${taskID}` });
+    return next(createCustomError(`No task with the id ${taskID}`, 404));
   }
 
   res.status(200).json({ task });
