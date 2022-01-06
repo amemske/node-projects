@@ -2,7 +2,7 @@
 
 class CustomAPIError extends Error {
   constructor(message, statusCode) {
-    super(message);
+    super(message); //super involkes property "message" of  the parent which is Error
     this.statusCode = statusCode;
   }
 }
